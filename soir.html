@@ -1,63 +1,268 @@
+```html
 <!DOCTYPE html>
-<html lang=
- 
+<html lang="fr">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
- 
+
 <title>Boîte à Hypnose</title>
- 
+
 <style>
- 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
+
+/* =========================
+   1. MISE EN PAGE GENERALE
+   ========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
- 
-body{
-background:#000;
-min-height:100vh;
+
+html, body {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
 }
- 
-.container{
-width:100%;
-display:flex;
-flex-direction:column;
-align-items:center;
+
+/* Conteneur principal */
+
+.container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
 }
- 
-.logo{
-width:100%;
-max-width:100%;
-height:auto;
-display:block;
+
+/* =========================
+   2. IMAGE DE FOND
+   ========================= */
+
+.logo {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    display: block;
 }
- 
-iframe{
-width:100%;
-height:166px;
-border:none;
+
+/* =========================
+   3. BOUTON PLAY / PAUSE
+   ========================= */
+
+.play-button {
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    width: 90px;
+    height: 90px;
+
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.9);
+
+    background: rgba(0,0,0,0.45);
+    color: white;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+
+    transition: background 0.3s, transform 0.3s;
+
+    z-index: 10;
 }
- 
+
+/* Effet au survol */
+
+.play-button:hover {
+    background: rgba(108,99,255,0.8);
+    transform: translate(-50%, -50%) scale(1.08);
+}
+
+/* Icône Play */
+
+.play-icon {
+    width: 0;
+    height: 0;
+
+    border-top: 18px solid transparent;
+    border-bottom: 18px solid transparent;
+    border-left: 28px solid white;
+
+    margin-left: 6px;
+}
+
+/* Icône Pause */
+
+.pause-icon {
+    display: flex;
+    gap: 8px;
+}
+
+.pause-icon span {
+    width: 9px;
+    height: 30px;
+    background: white;
+    border-radius: 2px;
+}
+
+/* =========================
+   4. LECTEUR SOUNDCLOUD
+   ========================= */
+
+#soundcloud-player {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+
+    opacity: 0;
+    pointer-events: none;
+
+    left: -1000px;
+    top: -1000px;
+}
+
 </style>
- 
+
 </head>
- 
+
 <body>
- 
+
 <div class="container">
- 
-<img src="logo.png" class="logo" alt="Boîte à Hypnose">
- 
-<iframe
-scrolling="no"
-allow="autoplay"
-src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%3Atracks%3A2406731841%3Fsecret_token%3Ds-Av7Bo8IO6Qw&color=%236c63ff&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
-</iframe>
- 
+
+    <!-- IMAGE DE FOND -->
+
+    <img
+        src="logo.png"
+        class="logo"
+        alt="Boîte à Hypnose"
+    >
+
+    <!-- BOUTON PLAY / PAUSE -->
+
+    <button
+        id="play-button"
+        class="play-button"
+        aria-label="Lire l'audio"
+    >
+
+        <span id="play-icon" class="play-icon"></span>
+
+        <span id="pause-icon" class="pause-icon" hidden>
+            <span></span>
+            <span></span>
+        </span>
+
+    </button>
+
+    <!-- LECTEUR SOUNDCLOUD INVISIBLE -->
+
+    <iframe
+        id="soundcloud-player"
+        allow="autoplay"
+        scrolling="no"
+        src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%3Atracks%3A2406731841%3Fsecret_token%3Ds-Av7Bo8IO6Qw&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"
+    >
+    </iframe>
+
 </div>
- 
+
+<!-- API SOUNDCLOUD -->
+
+<script src="https://w.soundcloud.com/player/api.js"></script>
+
+<script>
+
+/* =========================
+   5. CONTROLE DU LECTEUR
+   ========================= */
+
+const iframe = document.getElementById("soundcloud-player");
+const widget = SC.Widget(iframe);
+
+const button = document.getElementById("play-button");
+const playIcon = document.getElementById("play-icon");
+const pauseIcon = document.getElementById("pause-icon");
+
+let isPlaying = false;
+let isReady = false;
+
+/* Affichage du bouton Play */
+
+function showPlay() {
+    playIcon.hidden = false;
+    pauseIcon.hidden = true;
+
+    button.setAttribute("aria-label", "Lire l'audio");
+
+    isPlaying = false;
+}
+
+/* Affichage du bouton Pause */
+
+function showPause() {
+    playIcon.hidden = true;
+    pauseIcon.hidden = false;
+
+    button.setAttribute("aria-label", "Mettre en pause");
+
+    isPlaying = true;
+}
+
+/* Attendre que SoundCloud soit prêt */
+
+widget.bind(SC.Widget.Events.READY, function() {
+    isReady = true;
+});
+
+/* Bouton Play / Pause */
+
+button.addEventListener("click", function() {
+
+    if (!isReady) {
+        return;
+    }
+
+    if (isPlaying) {
+        widget.pause();
+    } else {
+        widget.play();
+    }
+
+});
+
+/* Synchroniser le bouton avec SoundCloud */
+
+widget.bind(SC.Widget.Events.PLAY, function() {
+    showPause();
+});
+
+widget.bind(SC.Widget.Events.PAUSE, function() {
+    showPlay();
+});
+
+widget.bind(SC.Widget.Events.FINISH, function() {
+    showPlay();
+});
+
+</script>
+
 </body>
- 
 </html>
+```
