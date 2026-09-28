@@ -1,68 +1,375 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Boîte à Hypnose</title>
 
 <style>
-body {
-margin: 0;
-font-family: Arial, sans-serif;
-background: linear-gradient(135deg, #16213e, #0f3460);
-display: flex;
-justify-content: center;
-align-items: center;
-min-height: 100vh;
+
+/* =========================
+   1. MISE EN PAGE GENERALE
+   ========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
- 
-.carte {
-background: white;
-width: 90%;
-max-width: 700px;
-padding: 30px;
-border-radius: 25px;
-text-align: center;
-box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+
+html, body {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
 }
- 
+
+/* =========================
+   2. CONTENEUR DE L'IMAGE
+   ========================= */
+
+.container {
+    width: 100%;
+    height: 100dvh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+}
+
+/*
+   Le conteneur conserve exactement
+   les proportions de ton image :
+   611 x 944
+*/
+
+.image-container {
+    position: relative;
+
+    width: min(100vw, calc(100dvh * 611 / 944));
+
+    aspect-ratio: 611 / 944;
+}
+
+/* =========================
+   3. IMAGE
+   ========================= */
+
 .logo {
-font-size: 60px;
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: contain;
 }
- 
-h1 {
-color: #16213e;
-margin-bottom: 10px;
+
+/* =========================
+   4. BOUTON PLAY / PAUSE
+   ========================= */
+
+.play-button {
+    position: absolute;
+
+    /*
+       IMPORTANT :
+       Cette valeur correspond maintenant
+       à la hauteur de L'IMAGE.
+
+       Tu peux modifier uniquement cette valeur.
+    */
+
+    top: 69%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    width: 90px;
+    height: 90px;
+
+    border-radius: 50%;
+
+    border: 2px solid rgba(255,255,255,0.9);
+
+    background: rgba(0,0,0,0.45);
+
+    color: white;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+
+    transition: background 0.3s, transform 0.3s;
+
+    z-index: 10;
 }
- 
-p {
-color: #666;
-margin-bottom: 25px;
+
+/* Effet au survol sur ordinateur */
+
+.play-button:hover {
+    background: rgba(108,99,255,0.8);
+
+    transform:
+        translate(-50%, -50%)
+        scale(1.08);
 }
+
+/* =========================
+   5. ICONE PLAY
+   ========================= */
+
+.play-icon {
+    width: 0;
+    height: 0;
+
+    border-top: 18px solid transparent;
+    border-bottom: 18px solid transparent;
+    border-left: 28px solid white;
+
+    margin-left: 6px;
+}
+
+/* =========================
+   6. ICONE PAUSE
+   ========================= */
+
+.pause-icon {
+    display: flex;
+    gap: 8px;
+}
+
+.pause-icon span {
+    width: 9px;
+    height: 30px;
+
+    background: white;
+
+    border-radius: 2px;
+}
+
+/* =========================
+   7. LECTEUR SOUNDCLOUD
+   ========================= */
+
+#soundcloud-player {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    left: -1000px;
+    top: -1000px;
+}
+
 </style>
+
 </head>
- 
+
 <body>
- 
-<div class="carte">
- 
-<div class="logo">🌙</div>
- 
-<h1>Développer mes capacités</h1>
- 
-<p>Version courte N°2</p>
-« Les portes ouvertes »
- <p>
-Installe-toi confortablement,
-mets ton téléphone en silencieux
-et prends quelques minutes pour toi.
-</p>
- <iframe
-width="100%"
-height="166"
-scrolling="no"
-frameborder="no"
-allow="autoplay"
-src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%3Atracks%3A2406731847%3Fsecret_token%3Ds-Nsd1KT5Cj5C&color=%236c63ff&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">   
-</iframe>
- 
+
+<div class="container">
+
+    <!-- =========================
+         IMAGE + BOUTON
+         ========================= -->
+
+    <div class="image-container">
+
+        <img
+            src="Font.png"
+            class="logo"
+            alt="Boîte à Hypnose"
+        >
+
+        <!-- BOUTON PLAY / PAUSE -->
+
+        <button
+            id="play-button"
+            class="play-button"
+            aria-label="Lire l'audio"
+        >
+
+            <span
+                id="play-icon"
+                class="play-icon">
+            </span>
+
+            <span
+                id="pause-icon"
+                class="pause-icon"
+                hidden>
+
+                <span></span>
+                <span></span>
+
+            </span>
+
+        </button>
+
+    </div>
+
+    <!-- =========================
+         SOUNDCLOUD INVISIBLE
+         ========================= -->
+
+    <iframe
+        id="soundcloud-player"
+        allow="autoplay"
+        scrolling="no"
+        src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%3Atracks%3A2406731847%3Fsecret_token%3Ds-Nsd1KT5Cj5C&color=%236c63ff&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">    </iframe>
+
+</div>
+
+
+<!-- =========================
+     API SOUNDCLOUD
+     ========================= -->
+
+<script src="https://w.soundcloud.com/player/api.js"></script>
+
+
+<script>
+
+/* =========================
+   CONTROLE DU LECTEUR
+   ========================= */
+
+const iframe = document.getElementById("soundcloud-player");
+
+const widget = SC.Widget(iframe);
+
+const button = document.getElementById("play-button");
+
+const playIcon = document.getElementById("play-icon");
+
+const pauseIcon = document.getElementById("pause-icon");
+
+let isPlaying = false;
+let isReady = false;
+
+
+/* =========================
+   AFFICHER PLAY
+   ========================= */
+
+function showPlay() {
+
+    playIcon.hidden = false;
+
+    pauseIcon.hidden = true;
+
+    button.setAttribute(
+        "aria-label",
+        "Lire l'audio"
+    );
+
+    isPlaying = false;
+}
+
+
+/* =========================
+   AFFICHER PAUSE
+   ========================= */
+
+function showPause() {
+
+    playIcon.hidden = true;
+
+    pauseIcon.hidden = false;
+
+    button.setAttribute(
+        "aria-label",
+        "Mettre en pause"
+    );
+
+    isPlaying = true;
+}
+
+
+/* =========================
+   SOUNDCLOUD PRET
+   ========================= */
+
+widget.bind(
+    SC.Widget.Events.READY,
+    function() {
+
+        isReady = true;
+
+    }
+);
+
+
+/* =========================
+   BOUTON PLAY / PAUSE
+   ========================= */
+
+button.addEventListener(
+    "click",
+    function() {
+
+        if (!isReady) {
+            return;
+        }
+
+        if (isPlaying) {
+
+            widget.pause();
+
+        } else {
+
+            widget.play();
+
+        }
+
+    }
+);
+
+
+/* =========================
+   SYNCHRONISATION
+   ========================= */
+
+widget.bind(
+    SC.Widget.Events.PLAY,
+    function() {
+
+        showPause();
+
+    }
+);
+
+
+widget.bind(
+    SC.Widget.Events.PAUSE,
+    function() {
+
+        showPlay();
+
+    }
+);
+
+
+widget.bind(
+    SC.Widget.Events.FINISH,
+    function() {
+
+        showPlay();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
